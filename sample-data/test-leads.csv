@@ -1,0 +1,12 @@
+Full Name,Email Address,Contact Number,Company Name,City,Status,Notes,Lead Source
+John Smith,john.smith@email.com,+91 9876543210,Tech Corp,Mumbai,Interested,"Called twice, very interested in property",Facebook Ads
+Jane Doe,jane.doe@gmail.com,+1-555-123-4567,Acme Inc,Bangalore,Not Responding,"Left voicemail on 3 occasions",Google Ads
+Rajesh Kumar,rajesh@yahoo.co.in,+91 8765432109,,Delhi,Closed Won,"Signed agreement on 15th Jan, possession in 6 months",Referral
+Priya Sharma,,+91 7654321098,Design Studio,Pune,Bad Lead,"Wrong number provided",Facebook Ads
+,noname@test.com,,Startup Labs,Hyderabad,,"Inquiry through website",
+Michael Johnson,michael.j@outlook.com,+44 7911 123456,Johnson & Partners,London,Follow Up,"International lead, prefers email communication",LinkedIn
+,,,,,,No contact info row should be skipped,
+Anita Patel,anita.patel@company.com,+91 9988776655,Patel Industries,Chennai,Sale Done,"Completed transaction, happy customer",Direct
+Wei Zhang,wei.zhang@tech.cn,,TechVentures,Shanghai,New Lead,"Mandarin-speaking, needs translator",Website Form
+Empty Row With Only Spaces, , , , , , ,
+Carlos Mendoza,carlos@startup.mx,+52 55 1234 5678,Startup Mexico,Mexico City,Interested,"Looking for 2BHK in Sarjapur area",Walk-in
