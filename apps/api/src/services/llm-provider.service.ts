@@ -97,7 +97,12 @@ class OpenRouterProvider implements LLMProvider {
       );
     }
 
-    const data = await response.json();
+    type OpenRouterResponse = {
+      choices?: Array<{ message?: { content?: string } }>;
+      usage?: { total_tokens?: number };
+    };
+
+    const data = (await response.json()) as OpenRouterResponse;
     const content = data.choices?.[0]?.message?.content || "";
     const elapsed = Date.now() - start;
 

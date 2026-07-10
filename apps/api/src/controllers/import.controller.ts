@@ -5,6 +5,19 @@ import { runExtraction } from "../services/extraction.service";
 import { createJob, getJob, emitJobEvent } from "../store";
 import { logger } from "../logger";
 
+
+function getStringParam(
+  value: string | string[] | undefined,
+  paramName: string
+): string {
+  if (typeof value !== "string") {
+    throw new Error(`Invalid ${paramName}`);
+  }
+
+  return value;
+}
+
+
 /**
  * POST /api/import/upload
  * Accepts multipart CSV upload, parses it server-side, returns jobId + metadata.
@@ -104,7 +117,7 @@ export async function extractJob(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const { jobId } = req.params;
+    const jobId = getStringParam(req.params.jobId, "jobId");
     const job = getJob(jobId);
 
     if (!job) {
@@ -182,7 +195,7 @@ export async function getJobStatus(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const { jobId } = req.params;
+    const jobId = getStringParam(req.params.jobId, "jobId");
     const job = getJob(jobId);
 
     if (!job) {
@@ -215,7 +228,7 @@ export async function streamJobProgress(
   req: Request,
   res: Response,
 ): Promise<void> {
-  const { jobId } = req.params;
+  const jobId = getStringParam(req.params.jobId, "jobId");
   const job = getJob(jobId);
 
   if (!job) {
@@ -287,7 +300,7 @@ export async function getJobResults(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const { jobId } = req.params;
+    const jobId = getStringParam(req.params.jobId, "jobId");
     const job = getJob(jobId);
 
     if (!job) {
