@@ -37,7 +37,7 @@ class GroqProvider implements LLMProvider {
       ],
       temperature: 0.1,
       response_format: { type: "json_object" },
-      max_tokens: 16384,
+      max_tokens: 8192,
     });
 
     const content = response.choices[0]?.message?.content || "";
