@@ -1,13 +1,12 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 import {
   useReactTable,
   getCoreRowModel,
   flexRender,
   type ColumnDef,
 } from "@tanstack/react-table";
-import { useVirtualizer } from "@tanstack/react-virtual";
 
 interface DataTableProps {
   headers: string[];
@@ -16,8 +15,6 @@ interface DataTableProps {
 }
 
 export function DataTable({ headers, rows, maxHeight = 500 }: DataTableProps) {
-  const parentRef = useRef<HTMLDivElement>(null);
-
   const columns = useMemo<ColumnDef<Record<string, string>>[]>(
     () => [
       // Row number column
@@ -53,13 +50,6 @@ export function DataTable({ headers, rows, maxHeight = 500 }: DataTableProps) {
   const { getHeaderGroups, getRowModel } = table;
   const tableRows = getRowModel().rows;
 
-  const virtualizer = useVirtualizer({
-    count: tableRows.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 42,
-    overscan: 20,
-  });
-
   if (rows.length === 0) {
     return (
       <div
@@ -76,7 +66,6 @@ export function DataTable({ headers, rows, maxHeight = 500 }: DataTableProps) {
 
   return (
     <div
-      ref={parentRef}
       className="table-container"
       style={{
         maxHeight,
@@ -86,7 +75,14 @@ export function DataTable({ headers, rows, maxHeight = 500 }: DataTableProps) {
         background: "hsl(var(--bg-card))",
       }}
     >
-      <table style={{ borderCollapse: "collapse", width: "max-content", minWidth: "100%" }}>
+      <table
+        style={{
+          borderCollapse: "collapse",
+          width: "100%",
+          minWidth: "100%",
+          tableLayout: "fixed",
+        }}
+      >
         <thead>
           {getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
@@ -116,47 +112,28 @@ export function DataTable({ headers, rows, maxHeight = 500 }: DataTableProps) {
             </tr>
           ))}
         </thead>
-        <tbody
-          style={{
-            height: `${virtualizer.getTotalSize()}px`,
-            position: "relative",
-          }}
-        >
-          {virtualizer.getVirtualItems().map((virtualRow) => {
-            const row = tableRows[virtualRow.index];
-            return (
-              <tr
-                key={row.id}
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  height: `${virtualRow.size}px`,
-                  transform: `translateY(${virtualRow.start}px)`,
-                  display: "table-row",
-                }}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <td
-                    key={cell.id}
-                    style={{
-                      padding: "10px 16px",
-                      fontSize: "0.875rem",
-                      color: "hsl(var(--text-primary))",
-                      borderBottom: "1px solid hsl(var(--border-primary))",
-                      whiteSpace: "nowrap",
-                      maxWidth: 300,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            );
-          })}
+        <tbody>
+          {tableRows.map((row) => (
+            <tr key={row.id}>
+              {row.getVisibleCells().map((cell) => (
+                <td
+                  key={cell.id}
+                  style={{
+                    padding: "10px 16px",
+                    fontSize: "0.875rem",
+                    color: "hsl(var(--text-primary))",
+                    borderBottom: "1px solid hsl(var(--border-primary))",
+                    whiteSpace: "nowrap",
+                    maxWidth: 300,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </td>
+              ))}
+            </tr>
+          ))}
         </tbody>
       </table>
 
