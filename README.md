@@ -51,49 +51,10 @@ groweasy-csv-importer/
 └── README.md
 ```
 
-### Architecture Diagram
+### Flow Diagram
 
-```
-┌─────────────────────────────────────────────┐
-│              Frontend (Next.js)              │
-│                                              │
-│  Step 1: Upload ──► Step 2: Preview          │
-│       │                                      │
-│       ▼                                      │
-│  Step 3: Confirm ──► Step 4: Results         │
-│       │                    ▲                 │
-│       │         SSE Stream │                 │
-└───────┼────────────────────┼─────────────────┘
-        │ POST /upload       │ GET /stream
-        │ POST /extract      │
-        ▼                    │
-┌───────┴────────────────────┴─────────────────┐
-│              Backend (Express)                │
-│                                              │
-│  Routes → Controllers → Services             │
-│                    │                          │
-│        ┌───────────┼───────────┐              │
-│        ▼           ▼           ▼              │
-│   CSV Parser  Batching    LLM Provider        │
-│                Service     ┌──────────┐       │
-│                    │       │   Groq   │       │
-│              Validation    │ (primary)│       │
-│               Service      ├──────────┤       │
-│                            │OpenRouter│       │
-│                            │(fallback)│       │
-│                            └──────────┘       │
-└───────────────────────────────────────────────┘
-```
+<img src="assets/flow.png" alt="Application Flow" width="900px">
 
-### Design Decisions
-
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| **State storage** | In-memory Map | Simplicity for the assignment scope; avoids database setup complexity. For production, swap to Redis or PostgreSQL. |
-| **Package manager** | npm workspaces | Zero additional tooling needed; universally supported. |
-| **Progress tracking** | SSE (Server-Sent Events) | Real-time push is better UX than polling; falls back to polling if SSE fails. |
-| **LLM response format** | `json_object` mode | Guarantees parseable JSON without markdown fences or prose. |
-| **Backend deploy** | Render | Free tier with Docker support, simple CI/CD from GitHub. |
 
 ## How the AI Extraction Works
 
@@ -166,7 +127,7 @@ The system prompt is deliberately:
 
 ```bash
 # Clone the repo
-git clone https://github.com/your-username/groweasy-csv-importer.git
+git clone https://github.com/piyushd12/groweasy-csv-importer.git
 cd groweasy-csv-importer
 
 # Install dependencies
@@ -329,25 +290,6 @@ npx jest --coverage -w apps/api
 - **Validation**: Enum enforcement, date parsing, email/phone rules, newline escaping, invalid JSON
 - **Extraction Prompt**: Field completeness, enum values, output format
 
-## Deployment
-
-### Frontend — Vercel
-
-1. Connect your GitHub repo to Vercel
-2. Set the root directory to `apps/web`
-3. Set the build command: `cd ../.. && npm run build -w packages/shared && npm run build -w apps/web`
-4. Set the output directory: `apps/web/.next`
-5. Add environment variable: `NEXT_PUBLIC_API_URL=https://your-api.onrender.com`
-
-### Backend — Render
-
-1. Create a new Web Service on Render
-2. Connect your GitHub repo
-3. Set the root directory to the repo root
-4. Build command: `npm install && npm run build -w packages/shared && npm run build -w apps/api`
-5. Start command: `node apps/api/dist/index.js`
-6. Add all environment variables from `.env.example`
-
 ## Known Limitations
 
 1. **In-memory state** — Job state is stored in a Map and is lost on server restart. For production, use Redis or a database.
@@ -356,7 +298,3 @@ npx jest --coverage -w apps/api
 4. **No authentication** — The API is open. In production, add auth middleware.
 5. **No persistent storage** — Imported records are returned but not stored in a database. Integration with an actual CRM database would be the next step.
 6. **Model accuracy** — LLM extraction quality depends on the model and prompt. Edge cases with highly ambiguous column names may produce suboptimal mappings.
-
-## License
-
-MIT
