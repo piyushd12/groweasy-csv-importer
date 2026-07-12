@@ -20,14 +20,15 @@ export function errorHandler(
 
   // Handle multer errors
   if (err instanceof MulterError) {
-    const statusCode = err.code === "LIMIT_FILE_SIZE" ? 413 : 400;
+    const multerErr = err; // narrowed to MulterError which has .code
+    const statusCode = multerErr.code === "LIMIT_FILE_SIZE" ? 413 : 400;
     const message =
-      err.code === "LIMIT_FILE_SIZE"
+      multerErr.code === "LIMIT_FILE_SIZE"
         ? "File is too large. Please upload a smaller CSV file."
-        : `Upload error: ${err.message}`;
+        : `Upload error: ${multerErr.message}`;
 
     const body: ApiError = {
-      error: err.code,
+      error: multerErr.code,
       message,
       statusCode,
     };
