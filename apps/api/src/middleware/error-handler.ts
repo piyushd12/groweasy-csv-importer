@@ -3,12 +3,17 @@ import { logger } from "../logger";
 import type { ApiError } from "@groweasy/shared";
 import { MulterError } from "multer";
 
+// Extend Error so we can safely read .code without TypeScript complaining
+interface ErrorWithCode extends Error {
+  code?: string;
+}
+
 /**
  * Centralized error-handling middleware.
  * Returns consistent JSON error shapes with proper HTTP status codes.
  */
 export function errorHandler(
-  err: Error,
+  err: ErrorWithCode,
   _req: Request,
   res: Response,
   _next: NextFunction,
@@ -20,23 +25,19 @@ export function errorHandler(
 
   // Handle multer errors
   if (err instanceof MulterError) {
-    const multerErr = err; // narrowed to MulterError which has .code
-    const statusCode = multerErr.code === "LIMIT_FILE_SIZE" ? 413 : 400;
+    const code: string = err.code ?? "UNKNOWN_UPLOAD_ERROR";
+    const statusCode = code === "LIMIT_FILE_SIZE" ? 413 : 400;
     const message =
-      multerErr.code === "LIMIT_FILE_SIZE"
+      code === "LIMIT_FILE_SIZE"
         ? "File is too large. Please upload a smaller CSV file."
-        : `Upload error: ${multerErr.message}`;
+        : `Upload error: ${err.message}`;
 
-    const body: ApiError = {
-      error: multerErr.code,
-      message,
-      statusCode,
-    };
+    const body: ApiError = { error: code, message, statusCode };
     res.status(statusCode).json(body);
     return;
   }
 
-  // Handle multer file filter errors
+  // Handle multer file filter errors (thrown manually with a string message)
   if (err.message === "Only CSV files are accepted") {
     const body: ApiError = {
       error: "INVALID_FILE_TYPE",
